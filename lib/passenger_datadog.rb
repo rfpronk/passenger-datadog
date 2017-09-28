@@ -53,7 +53,7 @@ class PassengerDatadog
       passenger_instances.each do |app, hash|
         hash.each do |target, instance|
           status = `passenger-status #{instance} --show=xml`
-          return if status.empty?
+          next if status.empty?
 
           environment = case app[-1]
             when "s"
