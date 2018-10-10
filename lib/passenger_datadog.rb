@@ -13,6 +13,15 @@ class PassengerDatadog
       app_base = "/srv/healthcare/"
       apps = Dir["#{app_base}*"]
       passenger_instances = {}
+      ignored_stats = [
+        "concurrency",
+        "private_dirty",
+        "pss",
+        "rss",
+        "sessions",
+        "swap",
+        "vmsize"
+      ]
 
       # Cycle through all WEB passenger instances
       apps.each do |app|
@@ -94,6 +103,7 @@ class PassengerDatadog
               GROUP_STATS.each do |stat|
                 value = group.xpath(stat).text
                 next if value.empty?
+                next if ignored_stats.include?(stat)
                 s.gauge("passenger.#{stat}", value)
               end
             end
@@ -102,6 +112,7 @@ class PassengerDatadog
               PROCESS_STATS.each do |stat|
                 value = process.xpath(stat).text
                 next if value.empty?
+                next if ignored_stats.include?(stat)
                 s.gauge("passenger.#{stat}", value, :tags => ["passenger-process:#{index}"])
               end
             end
